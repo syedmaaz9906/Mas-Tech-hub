@@ -1,0 +1,106 @@
+/* Colors & Styles (Default) */
+:root {
+    --PrimaryColor: hsl(94, 59%, 35%);
+    --HoverColor: #bdf094;
+    --paleGreen: hsl(96, 75%, 89%);
+    --whiteColor: hsl(0, 0%, 100%);
+    --blackColor: hsl(0, 0%, 18%);
+    --textColor: hsl(240, 1%, 48%);
+    --bgColor: hsl(220, 10%, 94%);
+    --greyText: rgb(190, 190, 190);
+    --inputColor: hsl(330, 12%, 97%);
+
+    /* Font & Typography */
+    --biggestFontSize: 2.5em;
+    --h1FontSize: 1.5em;
+    --h2FontSize: 1.25em;
+    --h3FontSize: 1rem;
+    --normalFontSize: 0.938rem;
+    --smallFontSize: 0.813rem;
+    --smalledFontSize: 0.75rem;
+}
+
+.tabMainContainer {
+
+    .btn-vendor-operations-main {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+
+        .btn-vendor-operations {
+            text-decoration: none;
+            outline: none;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            background: var(--paleGreen);
+            border: 2px solid var(--PrimaryColor);
+            color: #000;
+            font-weight: 600;
+            transition-duration: 300ms;
+
+            &:hover {
+                transform: translateY(-4px);
+                background: var(--PrimaryColor);
+                color: #fff;
+            }
+        }
+    }
+
+    .table-container {
+        margin-top: 2rem;
+        overflow-x: auto;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            th,
+            td {
+                border: 1px solid var(--greyText);
+                padding: 10px;
+                text-align: center;
+                font-size: var(--normalFontSize);
+            }
+
+            th {
+                background-color: var(--paleGreen);
+            }
+
+            td {
+                font-size: 13px;
+                font-weight: 500;
+            }
+
+            tr.resolved {
+                background-color: var(--paleGreen);
+            }
+
+            tr:not(.resolved) {
+                background-color: initial;
+            }
+
+            .resolveIconTable {
+                width: 22px;
+                height: 22px;
+                cursor: pointer;
+                transition-duration: 300ms;
+
+                &:hover {
+                    color: #28b904;
+                    transform: scale(1.1);
+                }
+            }
+
+        }
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .btn-vendor-operations-main {
+        flex-direction: column;
+    }
+}

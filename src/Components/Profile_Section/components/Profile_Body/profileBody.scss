@@ -1,0 +1,132 @@
+/* Colors & Styles (Default) */
+:root {
+    --PrimaryColor: hsl(94, 59%, 35%);
+    --HoverColor: #bdf094;
+    --paleGreen: hsl(96, 75%, 89%);
+    --whiteColor: hsl(0, 0%, 100%);
+    --blackColor: hsl(0, 0%, 18%);
+    --textColor: hsl(240, 1%, 48%);
+    --bgColor: hsl(220, 10%, 94%);
+    --greyText: rgb(190, 190, 190);
+    --inputColor: hsl(330, 12%, 97%);
+
+    /* Font & Typography */
+    --biggestFontSize: 2.5em;
+    --h1FontSize: 1.5em;
+    --h2FontSize: 1.25em;
+    --h3FontSize: 1rem;
+    --normalFontSize: 0.938rem;
+    --smallFontSize: 0.813rem;
+    --smalledFontSize: 0.75rem;
+}
+
+.profileBodyMainComponent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+
+    .profile-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .edit-icon-profile {
+            position: absolute;
+            bottom: 10px;
+            right: 6px;
+            background-color: rgb(236, 236, 236);
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 35px;
+            height: 35px;
+            transition: all 0.3s ease-in-out;
+
+            &:hover {
+                background-color: rgb(245, 245, 245);
+                transform: scale(1.1);
+            }
+        }
+    }
+
+    .email-container {
+        position: relative;
+        width: 300px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px 10px;
+
+        .email-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 6px;
+            font-size: 15px;
+        }
+
+        .edit-icon-email {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 8px;
+
+            &:hover{
+                background: #ccc;
+            }
+        }
+    }
+
+    .password-container {
+        position: relative;
+        width: 300px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px 10px;
+
+        .password-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 6px;
+            font-size: 15px;
+        }
+
+        .edit-icon-password {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 8px;
+
+            &:hover{
+                background: #ccc;
+            }
+        }
+    }
+}

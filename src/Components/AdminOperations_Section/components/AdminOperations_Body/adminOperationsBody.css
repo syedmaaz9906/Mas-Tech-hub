@@ -1,0 +1,347 @@
+/* Colors & Styles (Default) */
+:root {
+  --PrimaryColor: hsl(94, 59%, 35%);
+  --HoverColor: #bdf094;
+  --paleGreen: hsl(96, 75%, 89%);
+  --whiteColor: hsl(0, 0%, 100%);
+  --blackColor: hsl(0, 0%, 18%);
+  --textColor: hsl(240, 1%, 48%);
+  --bgColor: hsl(220, 10%, 94%);
+  --greyText: rgb(190, 190, 190);
+  --inputColor: hsl(330, 12%, 97%);
+  /* Font & Typography */
+  --biggestFontSize: 2.5em;
+  --h1FontSize: 1.5em;
+  --h2FontSize: 1.25em;
+  --h3FontSize: 1rem;
+  --normalFontSize: 0.938rem;
+  --smallFontSize: 0.813rem;
+  --smalledFontSize: 0.75rem;
+}
+
+.admin-operations-body {
+  padding: 20px;
+  background-color: var(--bgColor);
+  color: var(--textColor);
+  border-radius: 10px;
+}
+.admin-operations-body .search-container {
+  margin-bottom: 20px;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.admin-operations-body .search-container .search-input {
+  width: 80%;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid var(--greyText);
+  border-radius: 5px;
+  font-size: var(--normalFontSize);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  outline: none;
+  transition: all 0.3s ease;
+}
+.admin-operations-body .search-container .search-input:hover {
+  border-color: var(--paleGreen);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.admin-operations-body .search-container .search-input:focus {
+  border-color: var(--PrimaryColor);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.admin-operations-body .search-container .filter-dropdown {
+  padding: 10px;
+  border: 1px solid var(--greyText);
+  border-radius: 4px;
+  font-size: var(--normalFontSize);
+  background-color: var(--inputColor);
+  color: var(--textColor);
+}
+.admin-operations-body .table-container {
+  overflow-x: auto;
+}
+.admin-operations-body .table-container .responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.admin-operations-body .table-container .responsive-table th,
+.admin-operations-body .table-container .responsive-table td {
+  padding: 10px;
+  border: 1px solid var(--greyText);
+}
+.admin-operations-body .table-container .responsive-table th {
+  background-color: var(--PrimaryColor);
+  color: var(--whiteColor);
+}
+.admin-operations-body .table-container .responsive-table td {
+  font-weight: 600;
+}
+.admin-operations-body .table-container .responsive-table tbody tr {
+  background-color: var(--whiteColor);
+}
+.admin-operations-body .table-container .responsive-table tbody tr:hover {
+  background-color: #e4e4e4;
+}
+.admin-operations-body .table-container .responsive-table .table-action-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+}
+.admin-operations-body .table-container .responsive-table .table-action-buttons .table-action-button-accept {
+  text-decoration: none;
+  outline: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+}
+.admin-operations-body .table-container .responsive-table .table-action-buttons .table-action-button-accept:hover {
+  transform: scale(1.1);
+  background: var(--PrimaryColor);
+  color: #fff;
+}
+.admin-operations-body .table-container .responsive-table .table-action-buttons .table-action-button-cancel {
+  text-decoration: none;
+  outline: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: rgba(255, 0, 0, 0.2117647059);
+  border: 2px solid #ff6060;
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+  margin-left: 20px;
+}
+.admin-operations-body .table-container .responsive-table .table-action-buttons .table-action-button-cancel:hover {
+  transform: scale(1.1);
+  background: #ff6060;
+  color: #fff;
+}
+.admin-operations-body .table-container .responsive-table .delete-btn {
+  background-color: var(--deleteColor);
+  color: var(--whiteColor);
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.admin-operations-body .table-container .responsive-table .delete-btn:hover {
+  background-color: var(--deleteHoverColor);
+}
+.admin-operations-body .pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  gap: 1rem;
+}
+.admin-operations-body .pagination .pagination-button-prev {
+  text-decoration: none;
+  outline: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.admin-operations-body .pagination .pagination-button-prev:hover {
+  transform: translateY(-4px);
+  background: var(--PrimaryColor);
+  color: #fff;
+}
+.admin-operations-body .pagination .pagination-button-prev:disabled {
+  background: var(--greyText);
+  border-color: var(--greyText);
+  cursor: not-allowed;
+  color: var(--textColor);
+}
+.admin-operations-body .pagination .pagination-button-prev p {
+  width: 100%;
+}
+.admin-operations-body .pagination .pagination-button-next {
+  text-decoration: none;
+  outline: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.admin-operations-body .pagination .pagination-button-next:hover {
+  transform: translateY(-4px);
+  background: var(--PrimaryColor);
+  color: #fff;
+}
+.admin-operations-body .pagination .pagination-button-next:disabled {
+  background: var(--greyText);
+  border-color: var(--greyText);
+  cursor: not-allowed;
+  color: var(--textColor);
+}
+.admin-operations-body .pagination .pagination-button-next p {
+  width: 100%;
+}
+.admin-operations-body .clear-export-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 2rem;
+}
+.admin-operations-body .clear-export-buttons .clear-all-data-button {
+  text-decoration: none;
+  outline: none;
+  padding: 15px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+}
+.admin-operations-body .clear-export-buttons .clear-all-data-button:hover {
+  transform: translateY(-4px);
+  background: var(--PrimaryColor);
+  color: #fff;
+}
+.admin-operations-body .clear-export-buttons .export-to-csv-button {
+  text-decoration: none;
+  outline: none;
+  padding: 15px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+}
+.admin-operations-body .clear-export-buttons .export-to-csv-button:hover {
+  transform: translateY(-4px);
+  background: var(--PrimaryColor);
+  color: #fff;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.modal h2 {
+  margin-bottom: 10px;
+}
+
+.modal p {
+  margin-bottom: 20px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.modal-error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-button-cancel,
+.modal-button-confirm {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.modal-button-cancel {
+  background-color: #f44336;
+  color: white;
+}
+.modal-button-cancel:hover {
+  background-color: #b80f03;
+  transform: scale(1.1);
+}
+
+.modal-button-confirm {
+  background-color: #4caf50;
+  color: white;
+}
+.modal-button-confirm:hover {
+  background-color: #09790d;
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-operations-body .search-container {
+    flex-direction: column;
+    align-items: start;
+    gap: 1rem;
+  }
+  .admin-operations-body .table-container .responsive-table th,
+  .admin-operations-body .table-container .responsive-table td {
+    padding: 8px;
+    font-size: var(--smallFontSize);
+  }
+}
+@media screen and (max-width: 370px) {
+  .admin-operations-body .pagination {
+    flex-direction: column;
+  }
+}/*# sourceMappingURL=adminOperationsBody.css.map */

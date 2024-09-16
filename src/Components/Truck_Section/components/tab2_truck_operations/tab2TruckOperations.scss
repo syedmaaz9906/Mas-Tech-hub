@@ -1,0 +1,227 @@
+:root {
+    --PrimaryColor: hsl(94, 59%, 35%);
+    --HoverColor: #bdf094;
+    --paleGreen: hsl(96, 75%, 89%);
+    --whiteColor: hsl(0, 0%, 100%);
+    --blackColor: hsl(0, 0%, 18%);
+    --textColor: hsl(240, 1%, 48%);
+    --bgColor: hsl(220, 10%, 94%);
+    --greyText: rgb(190, 190, 190);
+    --inputColor: hsl(330, 12%, 97%);
+
+    /* Font & Typography */
+    --biggestFontSize: 2.5em;
+    --h1FontSize: 1.5em;
+    --h2FontSize: 1.25em;
+    --h3FontSize: 1rem;
+    --normalFontSize: 0.938rem;
+    --smallFontSize: 0.813rem;
+    --smalledFontSize: 0.75rem;
+}
+
+.tabMainContainer {
+    .btn-driver-profile-main {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+
+        .btn-driver-profile {
+            text-decoration: none;
+            outline: none;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            background: var(--paleGreen);
+            border: 2px solid var(--PrimaryColor);
+            color: #000;
+            font-weight: 600;
+            transition-duration: 300ms;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+
+            &:hover {
+                transform: translateY(-4px);
+                background: var(--PrimaryColor);
+                color: #fff;
+            }
+        }
+    }
+
+    .modal-truck {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        text-align: center;
+
+        h2 {
+            color: var(--blackColor);
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid var(--PrimaryColor);
+            border-radius: 4px;
+            font-size: var(--normalFontSize);
+        }
+
+        .btn-driver-profile-main-modal {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+
+            .btn-driver-profile-modal-add {
+                text-decoration: none;
+                outline: none;
+                padding-left: 15px;
+                padding-right: 15px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                cursor: pointer;
+                border-radius: 6px;
+                background: var(--paleGreen);
+                border: 2px solid var(--PrimaryColor);
+                color: #000;
+                font-weight: 600;
+                transition-duration: 300ms;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: row;
+
+                &:hover {
+                    transform: translateY(-4px);
+                    background: var(--PrimaryColor);
+                    color: #fff;
+                }
+            }
+
+            .btn-driver-profile-modal-cancel {
+                text-decoration: none;
+                outline: none;
+                padding-left: 15px;
+                padding-right: 15px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                cursor: pointer;
+                border-radius: 6px;
+                background: var(--greyText);
+                border: 2px solid var(--textColor);
+                color: #000;
+                font-weight: 600;
+                transition-duration: 300ms;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: row;
+
+                &:hover {
+                    transform: translateY(-4px);
+                    background: var(--textColor);
+                    color: #fff;
+                }
+            }
+        }
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+
+        &:hover {
+            color: #ee0707;
+            text-decoration: none;
+            cursor: pointer;
+            transform: scale(1.5);
+        }
+
+        &:focus {
+            color: #ee0707;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-top: 2rem;
+    }
+
+    .drivers-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .drivers-table th,
+    .drivers-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .drivers-table th {
+        background-color: var(--paleGreen);
+    }
+
+    .drivers-table td {
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .deleteIconTable {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        transition-duration: 300ms;
+
+        &:hover {
+            color: #ee0707;
+            transform: scale(1.1);
+        }
+    }
+
+    .reinstateDriverButton {
+        background: none;
+        outline: none;
+        border: 1px solid #000;
+        padding: 2px 6px;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .reinstateDriverButton:hover {
+        background: #bdf094;
+        border: 1px solid #bdf094;
+    }
+}
