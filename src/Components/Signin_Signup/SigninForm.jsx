@@ -6,7 +6,7 @@ import { ScreenMode } from '../../Pages/SigninPage'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
 
-let API_URL = 'https://backend.srv533347.hstgr.cloud/';
+let API_URL = 'http://localhost:5000/api/';
 
 const SigninForm = ({ onSwitchMode, set_token }) => {
     const [accountEmail, setAccountEmail] = useState('')
@@ -48,7 +48,7 @@ const SigninForm = ({ onSwitchMode, set_token }) => {
         }
 
         setOpen(true);
-        axios.post(API_URL + 'account_signin', {
+        axios.post(API_URL + 'auth/account_signin', {
             email: accountEmail,
             password: accountPassword
         }).then((response) => {
@@ -62,12 +62,13 @@ const SigninForm = ({ onSwitchMode, set_token }) => {
                     navigate('/dashboard');
                 }, 1500);
                 let data = Object.fromEntries(Object.entries(response.data).filter(([_, v]) => v != null));
-                localStorage.setItem('token', JSON.stringify(data));
-                set_token(data);
+                localStorage.setItem('token', data?.user?.token);
+                localStorage.setItem('user_details', JSON.stringify(data?.user));
+                set_token(data?.user?.token);
             }
         }).catch((error) => {
             console.log("Error", error);
-            setAlertMessage(error.response.data);
+            setAlertMessage(error.response.data.message);
             setOpen(false);
             setTimeout(() => {
                 setAlertMessage(null);
@@ -135,9 +136,9 @@ const SigninForm = ({ onSwitchMode, set_token }) => {
                             <Typography color={colors.grey[800]}>
                                 Email
                             </Typography>
-                            <TextField 
-                                onChange={(e) => setAccountEmail(e.target.value)} 
-                                onKeyPress={handleKeyPress} 
+                            <TextField
+                                onChange={(e) => setAccountEmail(e.target.value)}
+                                onKeyPress={handleKeyPress}
                             />
                         </Stack>
 
@@ -145,10 +146,10 @@ const SigninForm = ({ onSwitchMode, set_token }) => {
                             <Typography color={colors.grey[800]}>
                                 Password
                             </Typography>
-                            <TextField 
-                                type='password' 
-                                onChange={(e) => setAccountPassword(e.target.value)} 
-                                onKeyPress={handleKeyPress} 
+                            <TextField
+                                type='password'
+                                onChange={(e) => setAccountPassword(e.target.value)}
+                                onKeyPress={handleKeyPress}
                             />
                         </Stack>
                     </Stack>

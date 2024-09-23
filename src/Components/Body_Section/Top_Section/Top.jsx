@@ -10,7 +10,9 @@ import { RiLogoutCircleLine } from "react-icons/ri";
 import img from '../../../Assets/Images/profile.png'
 import { useNavigate } from 'react-router-dom';
 
-const Top = ({ set_token, user_details }) => {
+const Top = ({ set_token }) => {
+
+    const userDetails = JSON.parse(localStorage.getItem('user_details'))
 
     const navigate = useNavigate()
     const logoutAccount = () => {
@@ -23,7 +25,7 @@ const Top = ({ set_token, user_details }) => {
             <div className="headerSection flex">
                 <div className="title">
                     <h1>Welcome to Mas Tech Hub</h1>
-                    <p>Hello {user_details.Name.split(" ")[0]}, Welcome back!</p>
+                    <p>Hello {userDetails?.name ? userDetails.name.split(" ")[0] : userDetails.name}, Welcome back!</p>
                 </div>
 
                 {/* <div className="searchBar flex">

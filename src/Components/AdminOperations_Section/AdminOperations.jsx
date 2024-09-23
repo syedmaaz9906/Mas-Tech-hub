@@ -5,26 +5,30 @@ import axios from 'axios';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
-let API_URL = 'https://backend.srv533347.hstgr.cloud/';
-const AdminOperations = ({ user_details }) => {
+let API_URL = 'http://localhost:5000/api/';
+
+const AdminOperations = () => {
 
     const [open, setOpen] = useState(true);
-    const [user_data, setUserData] = useState([]);
+    const [userData, setUserData] = useState([]);
+
+    const userDetails = JSON.parse(localStorage.getItem('user_details'))
+    const token = localStorage.getItem('token')
 
     useEffect(() => {
-
-        axios.get(API_URL + 'get_accounts_info', {
+        axios.get(API_URL + 'user/get_accounts_info', {
             params: {
-                account_type: user_details.Role
+                account_type: userDetails.role
             },
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             }
         }).then((response) => {
             setOpen(false)
-            setUserData(response.data)
+            setUserData(response?.data)
         })
-            .catch(err => {setOpen(false); console.warn(err)});
+            .catch(err => { setOpen(false); console.warn(err) });
     }, []);
 
     return (
@@ -42,7 +46,7 @@ const AdminOperations = ({ user_details }) => {
             </div>
 
             <div className='adminOperationsBodyMain'>
-                {!open && <AdminOperationsBody user_data={user_data} set_user_data={setUserData} />}
+                {!open && <AdminOperationsBody user_data={userData} set_user_data={setUserData} />}
             </div>
         </div>
     )

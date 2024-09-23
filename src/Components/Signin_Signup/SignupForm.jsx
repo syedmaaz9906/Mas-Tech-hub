@@ -6,7 +6,7 @@ import { ScreenMode } from '../../Pages/SigninPage'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
 
-let API_URL = 'https://backend.srv533347.hstgr.cloud/';
+let API_URL = 'http://localhost:5000/api/';
 
 const SignupForm = ({ onSwitchMode }) => {
 
@@ -57,13 +57,13 @@ const SignupForm = ({ onSwitchMode }) => {
         }
 
         setOpen(true);
-        axios.post(API_URL + 'signup_account', {
+        axios.post(API_URL + 'user/signup_account', {
             name: accountName,
             email: accountEmail,
             password: accountPassword,
             role: accountType
         }).then((response) => {
-            if (response.status === 200) {
+            if (response.status === 201) {
                 setAlertType('success');
                 setAlertMessage('Account has been created successfully! Kindly wait, let the admin accept your account.');
                 setOpen(false);

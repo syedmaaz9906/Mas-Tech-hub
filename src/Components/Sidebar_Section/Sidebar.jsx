@@ -7,14 +7,17 @@ import logo from '../../Assets/Images/logo.png'
 
 // Imported Icons
 import { RiDashboardFill } from "react-icons/ri";
-import { FaFolder, FaTruck } from "react-icons/fa";
+import { FaTruck } from "react-icons/fa";
 import { FaClockRotateLeft } from 'react-icons/fa6';
 import { BsQuestionCircle } from "react-icons/bs";
 import { FaUserAlt } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { MdAdminPanelSettings } from "react-icons/md";
 
-const Sidebar = ({ activeItem, setActiveItem, user_details, set_token }) => {
+const Sidebar = ({ activeItem, setActiveItem, set_token }) => {
+
+    const userDetails = localStorage.getItem('user_details')
+
     const handleItemClick = (itemName) => {
         setActiveItem(itemName);
     };
@@ -86,7 +89,7 @@ const Sidebar = ({ activeItem, setActiveItem, user_details, set_token }) => {
                         </Link>
                     </li>
 
-                    {user_details.Role!=="volunteer" && <li className={`listItem ${activeItem === 'adminOperations' ? 'active' : ''}`}>
+                    {userDetails.role !== "volunteer" && <li className={`listItem ${activeItem === 'adminOperations' ? 'active' : ''}`}>
                         <Link to="#" className='menuLink flex' onClick={() => handleItemClick('adminOperations')}>
                             <MdAdminPanelSettings className='icon' />
                             <span className="smallText">Admin Operations</span>
@@ -101,7 +104,7 @@ const Sidebar = ({ activeItem, setActiveItem, user_details, set_token }) => {
                     </li>
 
                 </ul>
-            
+
             </div>
 
             <div className="sideBarCard">

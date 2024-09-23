@@ -6,7 +6,8 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2';
 
-let API_URL = 'https://backend.srv533347.hstgr.cloud/';
+let API_URL = 'http://localhost:5000/api/';
+
 const AdminOperationsBody = ({ user_data, set_user_data }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -40,7 +41,7 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     setOpen(true);
-                    axios.delete(API_URL + 'delete_user', {
+                    axios.delete(API_URL + 'user/delete_user', {
                         params: {
                             id: id
                         }
@@ -66,7 +67,7 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
         } else {
             setOpen(true);
             let status = "rejected";
-            axios.put(API_URL + 'update_user_status',
+            axios.put(API_URL + 'user/update_user_status',
                 { status: status, id: id }).then((response) => {
                     if (response.data) {
                         set_user_data(user_data.map(row => {
@@ -93,7 +94,7 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
         if (stat === "active") {
             status = "inactive";
         }
-        axios.put(API_URL + 'update_user_status',
+        axios.put(API_URL + 'user/update_user_status',
             { status: status, id: id }).then((response) => {
                 if (response.data) {
                     set_user_data(user_data.map(row => {
@@ -114,10 +115,11 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
             });
     };
 
-    const filteredData = user_data.filter(row =>
-        (row.Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            row.Email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (filter === 'all' ? !row.permanentlyDeleted : (filter === 'inactive' && row.AccountStatus === 'inactive'))
+    console.log('qwdioqwjdiuqwdjiuwqefweiufhwieuhuiwef', user_data)
+    const filteredData = user_data.data.filter(row =>
+        (row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            row.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (filter === 'all' ? !row.permanentlyDeleted : (filter === 'inactive' && row.accountStatus === 'inactive'))
     );
 
     function toTitleCase(str) {
@@ -152,14 +154,14 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
         if (confirmInput === 'confirm') {
             handleCloseModal();
             // Logic for clearing data goes here
-            if((user_data.filter(row => row.AccountStatus === 'deleted')).length === 0){
+            if ((user_data.data.filter(row => row.AccountStatus === 'deleted')).length === 0) {
                 alert("No Delete Account Present!")
                 return
             }
             setOpen(true);
             axios.delete(API_URL + 'delete_users').then((response) => {
                 if (response.data) {
-                    set_user_data(user_data.filter(row => row.AccountStatus !== 'deleted'));
+                    set_user_data(user_data.data.filter(row => row.AccountStatus !== 'deleted'));
                     setOpen(false);
                     Swal.fire({
                         title: "Deleted!",
@@ -174,8 +176,8 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
                 console.log(err);
                 setOpen(false);
             });
-            
-            
+
+
         } else {
             setError('Please type "confirm" to clear all deleted data.');
         }
@@ -234,21 +236,21 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
                         </thead>
                         <tbody>
                             {currentEntries.map((row, index) => (
-                                <tr key={row.ID}>
+                                <tr key={row._id}>
                                     {row.permanentlyDeleted ? (
                                         <>
-                                            <td>{row.Name}</td>
-                                            <td>{row.Email}</td>
-                                            <td>{row.Role}</td>
-                                            <td style={{ color: row.AccountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.AccountStatus)}</td>
+                                            <td>{row.name}</td>
+                                            <td>{row.email}</td>
+                                            <td>{row.role}</td>
+                                            <td style={{ color: row.AccountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.accountStatus)}</td>
                                             <td style={{ textAlign: 'center' }}>Deleted User</td>
                                         </>
                                     ) : (
                                         <>
-                                            <td>{row.Name}</td>
-                                            <td>{row.Email}</td>
-                                            <td>{row.Role}</td>
-                                            <td style={{ color: row.AccountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.AccountStatus)}</td>
+                                            <td>{row.name}</td>
+                                            <td>{row.email}</td>
+                                            <td>{row.role}</td>
+                                            <td style={{ color: row.AccountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.accountStatus)}</td>
                                             <td>
                                                 <div className='table-action-buttons'>
                                                     <button className='table-action-button-accept' onClick={() => { handleActiveInactive(row.ID, row.AccountStatus) }}>

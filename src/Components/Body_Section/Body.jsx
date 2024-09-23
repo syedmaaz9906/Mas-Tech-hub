@@ -8,16 +8,16 @@ import Csvdata from '../CsvData_Section/Csvdata';
 import Profile from '../Profile_Section/Profile';
 import AdminOperations from '../AdminOperations_Section/AdminOperations';
 
-const Body = ({ activeItem, user_details, set_token }) => {
+const Body = ({ activeItem, set_token }) => {
     return (
         <div className='mainContent'>
-            <Top set_token={set_token} user_details={user_details} />
+            <Top set_token={set_token} />
             {activeItem === 'home' && <Home />}
-            {activeItem === 'truck' && <Truck user_details={user_details} />}
+            {activeItem === 'truck' && <Truck />}
             {activeItem === 'vendor' && <Vendor />}
             {activeItem === 'csvdata' && <Csvdata />}
             {activeItem === 'profile' && <Profile />}
-            {activeItem === 'adminOperations' && <AdminOperations user_details={user_details} />}
+            {activeItem === 'adminOperations' && <AdminOperations />}
         </div>
     );
 };

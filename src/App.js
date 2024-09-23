@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './app.css';
 import Sidebar from './Components/Sidebar_Section/Sidebar';
@@ -7,16 +7,15 @@ import SigninPage from './Pages/SigninPage';
 
 function getToken() {
     const tokenString = localStorage.getItem('token');
-    const userToken = JSON.parse(tokenString);
-    return userToken
+    return tokenString
 }
 
-const Dashboard = ({ user_details, set_token }) => {
+const Dashboard = ({ set_token }) => {
     const [activeItem, setActiveItem] = useState('home');
     return (
         <div className='container'>
-            <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} user_details={user_details} set_token={set_token} />
-            <Body activeItem={activeItem} user_details={user_details} set_token={set_token} />
+            <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} set_token={set_token} />
+            <Body activeItem={activeItem} set_token={set_token} />
         </div>
     );
 };
