@@ -4,6 +4,9 @@ import { MdDeleteForever } from "react-icons/md";
 import { SiDavinciresolve } from "react-icons/si";
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
 
 let API_URL = 'https://backend.srv533347.hstgr.cloud/'
 const Tab1TruckOperations = ({ user_details, set_backdrop }) => {
@@ -15,8 +18,57 @@ const Tab1TruckOperations = ({ user_details, set_backdrop }) => {
         assignedDriver: '',
         priority: '',
     });
-    const [drivers, setDrivers] = useState([]);
+    // const [drivers, setDrivers] = useState([]);
     const [operations, setOperations] = useState([]);
+
+    const [drivers, setDrivers] = useState([]);
+
+    const fetchDrivers = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/driver/all?status=available');
+            console.log(response)
+            setDrivers(response.data.data);
+        } catch (error) {
+            console.error('Error fetching drivers:', error);
+        }
+    };
+
+    useEffect(() => {
+        // Initial fetch
+        fetchDrivers();
+
+        // Listen for driverAdded event
+        socket.on('driverAdded', (newDriver) => {
+            console.log('Driver added:', newDriver);
+            fetchDrivers();
+        });
+
+        // Listen for driverUpdated event
+        socket.on('driverUpdated', (updatedDriver) => {
+            console.log('Driver updated:', updatedDriver);
+            fetchDrivers();
+        });
+
+        // Listen for driverUpdated event
+        socket.on('driverReinstated', (updatedDriver) => {
+            console.log('Driver Reinstated:', updatedDriver);
+            fetchDrivers();
+        });
+
+        // Listen for driverDeleted event
+        socket.on('driverDeleted', (deletedDriver) => {
+            console.log('Driver Deleted:', deletedDriver);
+            fetchDrivers();
+        });
+
+        // Cleanup on unmount
+        return () => {
+            socket.off('driverAdded');
+            socket.off('driverUpdated');
+            socket.off('driverReinstated');
+            socket.off('driverDeleted');
+        };
+    }, []);
 
 
     const elapsedTimeCalculator = (select_time) => {
@@ -83,7 +135,7 @@ const Tab1TruckOperations = ({ user_details, set_backdrop }) => {
 
                 };
             }));
-            setDrivers(resp.drivers);
+            // setDrivers(resp.drivers);
             setInterval(counterTimer, 1000);
         })
             .catch(err => { set_backdrop(false); console.warn(err) });
@@ -393,7 +445,7 @@ const Tab1TruckOperations = ({ user_details, set_backdrop }) => {
                     {!formData.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>}
                     <option value="NA">NA</option>
                     {drivers.map((driver, index) => (
-                        <option key={index} value={driver.DriverID}>{driver.DriverName}</option>
+                        <option key={index} value={driver._id}>{driver.name}</option>
                     ))}
                 </select>
 

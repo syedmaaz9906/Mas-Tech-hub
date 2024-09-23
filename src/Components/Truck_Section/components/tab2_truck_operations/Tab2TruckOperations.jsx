@@ -24,9 +24,19 @@ const Tab2TruckOperations = ({ user_details, set_backdrop }) => {
             .catch(err => { set_backdrop(false); console.warn(err); });
     }, []);
 
-    const handleAddDriver = () => {
+    const addDriver = async (name) => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/driver/add', {driverName: name});
+            console.log(response)
+        } catch (error) {
+            console.error('Error fetching drivers:', error);
+        }
+    };
+
+    const handleAddDriver = async () => {
         if (driverName.trim()) {
             set_backdrop(true);
+            await addDriver(driverName)
             axios.post(API_URL + 'add_driver', {
                 driverName: driverName,
                 accountID: user_details.ID
