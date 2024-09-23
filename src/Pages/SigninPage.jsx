@@ -12,13 +12,9 @@ export const ScreenMode = {
 const SigninPage = ({set_token}) => {
 
     const [left, setLeft] = useState(0)
-
     const [right, setRight] = useState("unset")
-
     const [width, setWidth] = useState(0)
-
     const [backgroundImage, setBackgroundImage] = useState(assets.images.signinBg)
-
     const [currMode, setCurrMode] = useState(ScreenMode.SIGN_IN)
 
     const onSwitchMode = (mode) => {

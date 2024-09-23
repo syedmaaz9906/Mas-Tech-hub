@@ -61,7 +61,7 @@ const SignupForm = ({ onSwitchMode }) => {
             name: accountName,
             email: accountEmail,
             password: accountPassword,
-            account_type: accountType
+            role: accountType
         }).then((response) => {
             if (response.status === 200) {
                 setAlertType('success');
