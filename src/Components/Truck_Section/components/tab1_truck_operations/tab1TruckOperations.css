@@ -46,6 +46,24 @@
   outline: none;
   box-shadow: 0 0 5px var(--PrimaryColor);
 }
+.tabMainContainer .form-container .inputDropper {
+  flex: 1 1 calc(50% - 10px);
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid var(--greyText);
+  border-radius: 4px;
+  font-size: var(--normalFontSize);
+  background-color: var(--inputColor);
+  color: var(--textColor);
+}
+.tabMainContainer .form-container .inputDropper:hover {
+  border-color: var(--paleGreen);
+}
+.tabMainContainer .form-container .inputDropper:focus {
+  border-color: var(--PrimaryColor);
+  outline: none;
+  box-shadow: 0 0 5px var(--PrimaryColor);
+}
 .tabMainContainer .form-container select {
   cursor: pointer;
 }
@@ -146,9 +164,15 @@
   .form-container .input {
     flex: 1 1 calc(50% - 10px);
   }
+  .form-container .inputDropper {
+    flex: 1 1 calc(50% - 10px);
+  }
 }
 @media screen and (max-width: 600px) {
   .form-container .input {
+    flex: 1 1 100%;
+  }
+  .form-container .inputDropper {
     flex: 1 1 100%;
   }
   .btn-truck-operations-main {
@@ -157,6 +181,9 @@
 }
 @media screen and (max-width: 385px) {
   .form-container .input {
+    width: 50%;
+  }
+  .form-container .inputDropper {
     width: 50%;
   }
 }/*# sourceMappingURL=tab1TruckOperations.css.map */

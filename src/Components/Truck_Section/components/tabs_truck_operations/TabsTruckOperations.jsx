@@ -6,7 +6,7 @@ import Tab3TruckOperations from '../tab3_truck_operations/Tab3TruckOperations';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const TabsTruckOperations = ({user_details}) => {
+const TabsTruckOperations = () => {
 
     const [activeTab, setActiveTab] = useState('Operations');
     const [open, setOpen] = useState(false);
@@ -45,9 +45,9 @@ const TabsTruckOperations = ({user_details}) => {
                     </button>
                 </div>
                 <div className="tab-content">
-                    {activeTab === 'Operations' && <div><Tab1TruckOperations user_details={user_details} set_backdrop={setOpen} /></div>}
-                    {activeTab === 'Driver Profile' && <div><Tab2TruckOperations user_details={user_details} set_backdrop={setOpen} /></div>}
-                    {activeTab === 'Driver Options' && <div><Tab3TruckOperations user_details={user_details} set_backdrop={setOpen} /></div>}
+                    {activeTab === 'Operations' && <div><Tab1TruckOperations set_backdrop={setOpen} /></div>}
+                    {activeTab === 'Driver Profile' && <div><Tab2TruckOperations set_backdrop={setOpen} /></div>}
+                    {activeTab === 'Driver Options' && <div><Tab3TruckOperations set_backdrop={setOpen} /></div>}
                 </div>
             </div>
         </>

@@ -52,6 +52,27 @@
             }
         }
 
+        .inputDropper {
+            flex: 1 1 calc(50% - 10px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid var(--greyText);
+            border-radius: 4px;
+            font-size: var(--normalFontSize);
+            background-color: var(--inputColor);
+            color: var(--textColor);
+
+            &:hover {
+                border-color: var(--paleGreen);
+            }
+
+            &:focus {
+                border-color: var(--PrimaryColor);
+                outline: none;
+                box-shadow: 0 0 5px var(--PrimaryColor);
+            }
+        }
+
         select {
             cursor: pointer;
         }
@@ -180,12 +201,20 @@
         .input {
             flex: 1 1 calc(50% - 10px);
         }
+
+        .inputDropper {
+            flex: 1 1 calc(50% - 10px);
+        }
     }
 }
 
 @media screen and (max-width: 600px) {
     .form-container {
         .input {
+            flex: 1 1 100%;
+        }
+
+        .inputDropper {
             flex: 1 1 100%;
         }
     }
@@ -198,6 +227,10 @@
 @media screen and (max-width: 385px) {
     .form-container {
         .input {
+            width: 50%;
+        }
+
+        .inputDropper {
             width: 50%;
         }
     }

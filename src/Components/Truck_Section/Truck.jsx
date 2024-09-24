@@ -2,7 +2,7 @@ import React from 'react'
 import './truck.css'
 import TabsTruckOperations from './components/tabs_truck_operations/TabsTruckOperations'
 
-const Truck = ({user_details}) => {
+const Truck = () => {
     return (
         <div>
             <div className='truckMain'>
@@ -12,7 +12,7 @@ const Truck = ({user_details}) => {
             </div>
             
             <div className='truckBodyMain'>
-                <TabsTruckOperations user_details={user_details} />
+                <TabsTruckOperations />
             </div>
         </div>
     )
