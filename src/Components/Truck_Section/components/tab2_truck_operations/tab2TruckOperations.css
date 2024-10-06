@@ -197,4 +197,43 @@
 .tabMainContainer .reinstateDriverButton:hover {
   background: #bdf094;
   border: 1px solid #bdf094;
+}
+.tabMainContainer .paginationButtonMain {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+}
+.tabMainContainer .paginationButtonMain .paginationButtonNext {
+  text-decoration: none;
+  outline: none;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+.tabMainContainer .paginationButtonMain .paginationButtonPrev {
+  text-decoration: none;
+  outline: none;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: var(--paleGreen);
+  border: 2px solid var(--PrimaryColor);
+  color: #000;
+  font-weight: 600;
+  transition-duration: 300ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
 }/*# sourceMappingURL=tab2TruckOperations.css.map */
