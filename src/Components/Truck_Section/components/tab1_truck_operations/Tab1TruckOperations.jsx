@@ -26,6 +26,7 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
     // const [drivers, setDrivers] = useState([]);
     const [operations, setOperations] = useState([]);
     const [drivers, setDrivers] = useState([]);
+    const [allDrivers, setAllDrivers] = useState([]);
     const token = localStorage.getItem('token')
 
     const fetchDrivers = async () => {
@@ -42,6 +43,21 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
         }
     };
 
+    
+    const fetchAllDrivers = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/driver/all', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setAllDrivers(response.data.data);
+        } catch (error) {
+            // console.error('Error fetching drivers:', error);
+        }
+    };
+
     const fetchOperations = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/operation/all', {
@@ -52,7 +68,7 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
             });
             setOperations(response.data.data);
         } catch (error) {
-            console.error('Error fetching drivers:', error);
+            // console.error('Error fetching drivers:', error);
         }
     };
 
@@ -60,6 +76,7 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
         // Initial fetch
         fetchDrivers();
         fetchOperations();
+        fetchAllDrivers();
 
         // Listen for driverAdded event
         socket.on('driverAdded', (newDriver) => {
@@ -96,14 +113,14 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
         socket.on('driverReassignedNA', (operationId, driver, noDriverTimeCount, message) => {
             console.log('ReAssigned NA Operation:', operationId, driver, noDriverTimeCount, message);
             fetchOperations();
-            fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for reassignedOperataion event
         socket.on('driverReassigned', (operationId, newDriver, assignedAt, totalTimeCount, noDriverTime) => {
             console.log('ReAssigned Operation:', operationId, newDriver, assignedAt, totalTimeCount, noDriverTime);
             fetchOperations();
-            fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Cleanup on unmount
@@ -423,7 +440,6 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
                     className="inputDropper"
                 >
                     {!formData.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>}
-                    <option value="NA">NA</option>
                     {drivers.map((driver, index) => (
                         <option key={index} value={driver._id}>{driver.name}</option>
                     ))}
@@ -493,18 +509,15 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
                                 </td> */}
 
                                 <td>
-                                <select
+                                    <select
                                         name={`assignedDriver-${operation._id}`}
                                         value={operation.assignedDriver}
-                                        onChange={(e) => {
-                                            reAssignDriver(e, operation._id)
-                                            console.log(drivers)
-                                        }}
+                                        onChange={(e) => reAssignDriver(e, operation._id)}
                                         className="input"
                                     >
                                         {/* {!operation.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>} */}
                                         {/* <option value="">N/A</option> */}
-                                        {[...drivers, { _id: null, name: 'N/A' }].map((driver, driverIndex) => (
+                                        {[...allDrivers, {_id: '', name: 'N/A'}].map((driver, driverIndex) => (
                                             <option key={driverIndex} value={driver._id}>{driver.name}</option>
                                         ))}
                                     </select>
