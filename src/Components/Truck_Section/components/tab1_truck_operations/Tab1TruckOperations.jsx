@@ -13,7 +13,7 @@ const socket = io('http://localhost:5000');
 
 let API_URL = 'http://localhost:5000/api/';
 
-const Tab1TruckOperations = ({ set_backdrop }) => {
+const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
 
     const [formData, setFormData] = useState({
         truckLocation: '',
@@ -23,10 +23,8 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
         assignedDriver: '',
         priority: '',
     });
-    // const [drivers, setDrivers] = useState([]);
     const [operations, setOperations] = useState([]);
     const [drivers, setDrivers] = useState([]);
-    const [allDrivers, setAllDrivers] = useState([]);
     const token = localStorage.getItem('token')
 
     const fetchDrivers = async () => {
@@ -40,21 +38,6 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
             setDrivers(response.data.data);
         } catch (error) {
             console.error('Error fetching drivers:', error);
-        }
-    };
-
-    
-    const fetchAllDrivers = async () => {
-        try {
-            const response = await axios.get('http://localhost:5000/api/driver/all', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setAllDrivers(response.data.data);
-        } catch (error) {
-            // console.error('Error fetching drivers:', error);
         }
     };
 
@@ -76,30 +59,33 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
         // Initial fetch
         fetchDrivers();
         fetchOperations();
-        fetchAllDrivers();
 
         // Listen for driverAdded event
         socket.on('driverAdded', (newDriver) => {
             console.log('Driver added:', newDriver);
             fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for driverUpdated event
         socket.on('driverUpdated', (updatedDriver) => {
             console.log('Driver updated:', updatedDriver);
             fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for driverUpdated event
         socket.on('driverReinstated', (updatedDriver) => {
             console.log('Driver Reinstated:', updatedDriver);
             fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for driverDeleted event
         socket.on('driverDeleted', (deletedDriver) => {
             console.log('Driver Deleted:', deletedDriver);
             fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for addOperataion event
@@ -107,12 +93,14 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
             console.log('Operation Added:', operation);
             fetchOperations();
             fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for reassignedOperataion NA event
         socket.on('driverReassignedNA', (operationId, driver, noDriverTimeCount, message) => {
             console.log('ReAssigned NA Operation:', operationId, driver, noDriverTimeCount, message);
             fetchOperations();
+            fetchDrivers();
             fetchAllDrivers();
         });
 
@@ -120,6 +108,7 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
         socket.on('driverReassigned', (operationId, newDriver, assignedAt, totalTimeCount, noDriverTime) => {
             console.log('ReAssigned Operation:', operationId, newDriver, assignedAt, totalTimeCount, noDriverTime);
             fetchOperations();
+            fetchDrivers();
             fetchAllDrivers();
         });
 
@@ -493,31 +482,17 @@ const Tab1TruckOperations = ({ set_backdrop }) => {
                                 <td>{operation.boothLocation}</td>
                                 <td>{operation.request}</td>
                                 <td>{operation.notes}</td>
-                                {/* old code */}
-                                {/* <td>
-                                    <select
-                                        name={`assignedDriver-${operation.ID}`}
-                                        value={operation.assignedDriver}
-                                        onChange={(e) => handleDriverChange(e, operation.ID)}
-                                        className="input"
-                                    >
-                                        {!operation.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>}
-                                        {drivers.map((driver, driverIndex) => (
-                                            <option key={driverIndex} value={driver.assignedDriver}>{driver.DriverName}</option>
-                                        ))}
-                                    </select>
-                                </td> */}
 
                                 <td>
                                     <select
                                         name={`assignedDriver-${operation._id}`}
-                                        value={operation.assignedDriver}
+                                        value={!operation.assignedDriver ? "" : operation.assignedDriver}
                                         onChange={(e) => reAssignDriver(e, operation._id)}
                                         className="input"
                                     >
                                         {/* {!operation.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>} */}
                                         {/* <option value="">N/A</option> */}
-                                        {[...allDrivers, {_id: '', name: 'N/A'}].map((driver, driverIndex) => (
+                                        {[...allDrivers, { _id: '', name: 'N/A' }].map((driver, driverIndex) => (
                                             <option key={driverIndex} value={driver._id}>{driver.name}</option>
                                         ))}
                                     </select>

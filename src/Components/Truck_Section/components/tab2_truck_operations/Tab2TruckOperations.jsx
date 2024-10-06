@@ -9,65 +9,66 @@ const socket = io('http://localhost:5000');
 
 let API_URL = 'http://localhost:5000/api/';
 
-const Tab2TruckOperations = ({ set_backdrop }) => {
+const Tab2TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [driverName, setDriverName] = useState('');
-    const [drivers, setDrivers] = useState([]);
     const [currentDrivers, setCurrentDrivers] = useState();
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 8;
-    const totalPages = Math.ceil(drivers.length / rowsPerPage);
+    const totalPages = Math.ceil(allDrivers.length / rowsPerPage);
     const userDetails = localStorage.getItem('user_details')
     const token = localStorage.getItem('token')
 
-    const fetchDrivers = async () => {
-        try {
-            const response = await axios.get(API_URL + 'driver/all', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            console.log(response)
-            setDrivers(response.data.data);
-            setCurrentDrivers(
-                response?.data?.data ? response?.data?.data?.slice(
-                    (currentPage - 1) * rowsPerPage,
-                    currentPage * rowsPerPage
-                ) : []
-            )
-        } catch (error) {
-            console.error('Error fetching drivers:', error);
-        }
-    };
-
     useEffect(() => {
-        // Initial fetch
-        fetchDrivers();
+
+        // setCurrentDrivers(
+        //     allDrivers ? allDrivers?.slice(
+        //         (currentPage - 1) * rowsPerPage,
+        //         currentPage * rowsPerPage
+        //     ) : []
+        // )
 
         // Listen for driverAdded event
         socket.on('driverAdded', (newDriver) => {
             console.log('Driver added:', newDriver);
-            fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for driverUpdated event
         socket.on('driverUpdated', (updatedDriver) => {
             console.log('Driver updated:', updatedDriver);
-            fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for driverUpdated event
         socket.on('driverReinstated', (updatedDriver) => {
             console.log('Driver Reinstated:', updatedDriver);
-            fetchDrivers();
+            fetchAllDrivers();
         });
 
         // Listen for driverDeleted event
         socket.on('driverDeleted', (deletedDriver) => {
             console.log('Driver Deleted:', deletedDriver);
-            fetchDrivers();
+            fetchAllDrivers();
+        });
+
+        // Listen for addOperataion event
+        socket.on('operationAdded', (operation) => {
+            console.log('Operation Added:', operation);
+            fetchAllDrivers();
+        });
+
+        // Listen for reassignedOperataion NA event
+        socket.on('driverReassignedNA', (operationId, driver, noDriverTimeCount, message) => {
+            console.log('ReAssigned NA Operation:', operationId, driver, noDriverTimeCount, message);
+            fetchAllDrivers();
+        });
+
+        // Listen for reassignedOperataion event
+        socket.on('driverReassigned', (operationId, newDriver, assignedAt, totalTimeCount, noDriverTime) => {
+            console.log('ReAssigned Operation:', operationId, newDriver, assignedAt, totalTimeCount, noDriverTime);
+            fetchAllDrivers();
         });
 
         // Cleanup on unmount
@@ -210,7 +211,7 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                 </div>
             )}
 
-            {drivers?.length > 0 && (
+            {allDrivers?.length > 0 && (
                 <div className='table-container'>
                     <table className='drivers-table'>
                         <thead>
@@ -225,7 +226,7 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentDrivers.map((driver, index) => (
+                            {allDrivers.map((driver, index) => (
                                 <tr key={index}>
                                     <td>{driver.name}</td>
                                     <td>{driver.requestNumber || 'N/A'}</td>
@@ -248,14 +249,14 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                         <button
                             className='paginationButtonNext'
                             onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
-                            disabled={currentPage === 1 || drivers?.length <= rowsPerPage}
+                            disabled={currentPage === 1 || allDrivers?.length <= rowsPerPage}
                         >
                             Previous
                         </button>
                         <button
                             className='paginationButtonPrev'
                             onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
-                            disabled={currentPage === totalPages || drivers?.length <= rowsPerPage}
+                            disabled={currentPage === totalPages || allDrivers?.length <= rowsPerPage}
                         >
                             Next
                         </button>
