@@ -16,7 +16,7 @@ const Tab2TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
     const [currentDrivers, setCurrentDrivers] = useState();
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 8;
-    const totalPages = Math.ceil(allDrivers.length / rowsPerPage);
+    const totalPages = allDrivers && allDrivers.length > 0 ? Math.ceil(allDrivers.length / rowsPerPage) : 1;
     const userDetails = localStorage.getItem('user_details')
     const token = localStorage.getItem('token')
 

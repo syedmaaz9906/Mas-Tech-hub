@@ -164,6 +164,18 @@
                 }
             }
 
+            .reinstateIconTable {
+                width: 22px;
+                height: 22px;
+                cursor: pointer;
+                transition-duration: 300ms;
+
+                &:hover {
+                    color: #5fd300;
+                    transform: scale(1.1);
+                }
+            }
+
             .resolveIconTable {
                 width: 22px;
                 height: 22px;
@@ -175,7 +187,15 @@
                     transform: scale(1.1);
                 }
             }
+            .noOperationMain {
+                margin-top: 15px;
+                width: 200px;
 
+                .noOperationText{
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+            }
         }
 
         #tableTab1TruckOperations tr.deleted {

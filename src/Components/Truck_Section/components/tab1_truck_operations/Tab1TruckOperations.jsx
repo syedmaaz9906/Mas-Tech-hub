@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './tab1TruckOperations.css';
-import { MdDeleteForever } from "react-icons/md";
+import { MdDeleteForever, MdRestore } from "react-icons/md";
 import { SiDavinciresolve } from "react-icons/si";
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -13,7 +13,7 @@ const socket = io('http://localhost:5000');
 
 let API_URL = 'http://localhost:5000/api/';
 
-const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
+const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers, operations, fetchOperations, fetchResolvedOperations }) => {
 
     const [formData, setFormData] = useState({
         truckLocation: '',
@@ -23,9 +23,8 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
         assignedDriver: '',
         priority: '',
     });
-    const [operations, setOperations] = useState([]);
     const [drivers, setDrivers] = useState([]);
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
 
     const fetchDrivers = async () => {
         try {
@@ -38,20 +37,6 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
             setDrivers(response.data.data);
         } catch (error) {
             console.error('Error fetching drivers:', error);
-        }
-    };
-
-    const fetchOperations = async () => {
-        try {
-            const response = await axios.get('http://localhost:5000/api/operation/all', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setOperations(response.data.data);
-        } catch (error) {
-            // console.error('Error fetching drivers:', error);
         }
     };
 
@@ -110,6 +95,36 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
             fetchOperations();
             fetchDrivers();
             fetchAllDrivers();
+        });
+
+        // Listen for operationUpdated event
+        socket.on('operationUpdated', (updatedOperation) => {
+            console.log('Updated Operation:', updatedOperation);
+            fetchOperations();
+            fetchResolvedOperations();
+        });
+
+        // Listen for operationDeleted event
+        socket.on('operationDeleted', (deletedOperation) => {
+            console.log('Deleted Operation:', deletedOperation);
+            fetchOperations();
+            fetchDrivers();
+            fetchAllDrivers();
+        });
+
+        // Listen for operationReinstated event
+        socket.on('operationReinstated', (updatedOperation) => {
+            console.log('Reinstated Operation:', updatedOperation);
+            fetchOperations();
+        });
+
+        // Listen for operationReinstated event
+        socket.on('operationResolved', (updatedOperation) => {
+            console.log('Reinstated Operation:', updatedOperation);
+            fetchOperations();
+            fetchDrivers();
+            fetchAllDrivers();
+            fetchResolvedOperations();
         });
 
         // Cleanup on unmount
@@ -187,41 +202,47 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
         })
     };
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setOperations((prevOperations) =>
-                prevOperations.map((operation) => ({
-                    ...operation,
-                    requestTimeElapsed: operation.requestTimeElapsed + 1,
-                }))
-            );
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleDriverChange = (e, operationID) => {
-        const newDriverID = e.target.value;
-        setOperations(operations.map(operation =>
-            operation._id === operationID ? { ...operation, assignedDriver: newDriverID, DriverName: drivers.find(driver => driver.assignedDriver === newDriverID).driverName } : operation
-        ));
+    const handlePriorityChange = (e, operationID) => {
+        axios.patch(API_URL + `operation/priority/${operationID}`, { priority: e.target.value }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then((response) => {
+            if (response.data) {
+                set_backdrop(false);
+            } else {
+                console.log(response.data);
+                set_backdrop(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+            set_backdrop(false);
+        });
     };
 
-    const handlePriorityChange = (e, operationID) => {
-        const newPriority = e.target.value;
-        setOperations(operations.map(operation =>
-            operation._id === operationID ? { ...operation, Priority: newPriority } : operation
-        ));
+    const reinstateOperation = (operation) => {
+        console.log(operation)
+        axios.patch(API_URL + `operation/reinstate/${operation._id}`, { status: 'deleted' }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        }).then((response) => {
+            console.log('reposen', response)
+            if (response.data) {
+                set_backdrop(false);
+            } else {
+                console.log(response.data);
+                set_backdrop(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+            set_backdrop(false);
+        });
     };
 
     const deleteOperation = (operation) => {
-        const id = operation.ID;
-        const status = operation.OperationStatus;
-        const driver_id = operation.assignedDriver
-        if (status === 'deleted') {
-            // if (userDetails.role === "volunteer") {
-            //     return alert("Only admins can delete permenantly");
-            // }
+        console.log(operation)
+        if (operation.status === 'deleted') {
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -233,15 +254,12 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     set_backdrop(true);
-                    axios.delete(API_URL + 'delete_truck_operation', {
-                        params: {
-                            id: id,
-                            status: status,
-                            driver_id: driver_id,
-                        }
+                    axios.delete(API_URL + `operation/delete/${operation._id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
                     }).then((response) => {
                         if (response.data) {
-                            setOperations(operations.filter(row => row.ID !== id));
                             set_backdrop(false);
                             Swal.fire({
                                 title: "Deleted!",
@@ -262,27 +280,14 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
         }
         else {
             set_backdrop(true);
-            axios.delete(API_URL + 'delete_truck_operation', {
-                params: {
-                    id: id,
-                    status: status,
-                    driver_id: driver_id,
-                }
+            axios.delete(API_URL + `operation/delete/${operation._id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
             }).then((response) => {
                 if (response.data) {
-                    setOperations(operations.map(row => {
-                        if (row.ID === id) {
-                            return {
-                                ...row,
-                                OperationStatus: "deleted"
-                            };
-                        }
-                        return row;
-                    }));
                     set_backdrop(false);
-
                 } else {
-                    // console.log(response.data);
                     set_backdrop(false);
                 }
             }).catch((err) => {
@@ -294,37 +299,21 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
     };
 
     const resolveOperation = (operation) => {
-        const status = operation.OperationStatus === 'active' ? 'resolved' : 'active'
-        const id = operation.ID;
-        const driver_id = operation.assignedDriver
         set_backdrop(true);
-        axios.put(API_URL + 'update_truck_operation',
-            { status: status, id: id, assignedDriver: driver_id }).then((response) => {
-                if (response.data) {
-                    if (status === 'resolved') {
-                        // console.log(operations)
-                        setOperations(operations.filter(row => row.ID !== id));
-                    }
-                    else {
-                        setOperations(operations.map(row => {
-                            if (row.ID === id) {
-                                return {
-                                    ...row,
-                                    OperationStatus: 'active'
-                                };
-                            }
-                            return row;
-                        }));
-                    }
-                    set_backdrop(false);
-                } else {
-                    // console.log(response.data);
-                    set_backdrop(false);
-                }
-            }).catch((err) => {
-                console.log(err);
+        axios.patch(API_URL + `operation/resolve/${operation._id}`, {}, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        }).then((response) => {
+            if (response.data) {
                 set_backdrop(false);
-            });
+            } else {
+                set_backdrop(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+            set_backdrop(false);
+        });
     };
 
     const exportToCSV = () => {
@@ -429,7 +418,7 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
                     className="inputDropper"
                 >
                     {!formData.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>}
-                    {drivers.map((driver, index) => (
+                    {drivers && drivers.length > 0 && drivers.map((driver, index) => (
                         <option key={index} value={driver._id}>{driver.name}</option>
                     ))}
                 </select>
@@ -475,7 +464,7 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {operations.map((operation) => (
+                        {operations && operations.length > 0 ? operations.map((operation) => (
                             <tr key={operation._id} className={`${operation.assignedDriver === 'NA' ? 'na-selected' : ''}`}>
                                 <td>{operation.requestNumber}</td>
                                 <td>{operation.truckLocation}</td>
@@ -486,15 +475,19 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
                                 <td>
                                     <select
                                         name={`assignedDriver-${operation._id}`}
-                                        value={!operation.assignedDriver ? "" : operation.assignedDriver}
+                                        value={!operation.assignedDriver ? "" : operation.assignedDriver._id}
                                         onChange={(e) => reAssignDriver(e, operation._id)}
                                         className="input"
                                     >
                                         {/* {!operation.assignedDriver && <option value="" disabled hidden>Assigned Driver</option>} */}
                                         {/* <option value="">N/A</option> */}
-                                        {[...allDrivers, { _id: '', name: 'N/A' }].map((driver, driverIndex) => (
+                                        {operation.assignedDriver ? [...drivers, { _id: '', name: 'N/A' }, { _id: operation.assignedDriver._id, name: operation.assignedDriver.name }].map((driver, driverIndex) => (
                                             <option key={driverIndex} value={driver._id}>{driver.name}</option>
-                                        ))}
+                                        )) : (
+                                            [...drivers, { _id: '', name: 'N/A' }].map((driver, driverIndex) => (
+                                                <option key={driverIndex} value={driver._id}>{driver.name}</option>
+                                            ))
+                                        )}
                                     </select>
                                 </td>
 
@@ -513,20 +506,30 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
 
                                 <td>
                                     <select
-                                        name={`priority-${operation.ID}`}
-                                        value={operation.Priority}
-                                        onChange={(e) => handlePriorityChange(e, operation.ID)}
+                                        name={`priority-${operation._id}`}
+                                        value={operation.priority}
+                                        onChange={(e) => handlePriorityChange(e, operation._id)}
                                         className="input"
                                     >
                                         <option value="low">Low</option>
                                         <option value="high">High</option>
                                     </select>
                                 </td>
-                                {/* <td>{operation.Priority}</td> */}
-                                <td><MdDeleteForever className='deleteIconTable' onClick={() => deleteOperation(operation)} /></td>
+
+                                <td>
+                                    <MdDeleteForever className='deleteIconTable' onClick={() => deleteOperation(operation)} />
+                                    {operation?.status === 'deleted' &&
+                                        <MdRestore className='reinstateIconTable' onClick={() => reinstateOperation(operation)} />
+                                    }
+                                </td>
+
                                 <td><SiDavinciresolve className='resolveIconTable' onClick={() => resolveOperation(operation)} /></td>
                             </tr>
-                        ))}
+                        )) : (
+                            <div className='noOperationMain'>
+                                <p className='noOperationText'>No operations</p>
+                            </div>
+                        )}
                     </tbody>
                 </table>
             </div>

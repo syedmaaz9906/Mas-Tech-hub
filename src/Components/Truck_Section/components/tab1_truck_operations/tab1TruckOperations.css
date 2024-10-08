@@ -137,6 +137,16 @@
   color: #ee0707;
   transform: scale(1.1);
 }
+.tabMainContainer .table-container table .reinstateIconTable {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  transition-duration: 300ms;
+}
+.tabMainContainer .table-container table .reinstateIconTable:hover {
+  color: #5fd300;
+  transform: scale(1.1);
+}
 .tabMainContainer .table-container table .resolveIconTable {
   width: 22px;
   height: 22px;
@@ -146,6 +156,14 @@
 .tabMainContainer .table-container table .resolveIconTable:hover {
   color: #28b904;
   transform: scale(1.1);
+}
+.tabMainContainer .table-container table .noOperationMain {
+  margin-top: 15px;
+  width: 200px;
+}
+.tabMainContainer .table-container table .noOperationMain .noOperationText {
+  font-size: 16px;
+  font-weight: 600;
 }
 .tabMainContainer .table-container #tableTab1TruckOperations tr.deleted {
   background-color: var(--littleRed);
