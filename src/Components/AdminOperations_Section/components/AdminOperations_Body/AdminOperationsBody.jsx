@@ -6,7 +6,7 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2';
 
-let API_URL = 'http://localhost:5000/api/';
+let API_URL = process.env.API_URL;
 
 const AdminOperationsBody = ({ user_data, set_user_data }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +17,8 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
     const [confirmInput, setConfirmInput] = useState('');
     const [error, setError] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const token = localStorage.getItem('token')
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
@@ -44,10 +46,16 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
                     axios.delete(API_URL + 'user/delete_user', {
                         params: {
                             id: id
+                        },
+                        headers: {
+                            'Authorization': `Bearer ${token}`
                         }
                     }).then((response) => {
                         if (response.data) {
-                            set_user_data(user_data.map(row => row.ID === id ? { ...row, permanentlyDeleted: true } : row));
+                            set_user_data(prevData => ({
+                                ...prevData,
+                                data: prevData.data.map(row => row._id === id ? { ...row, permanentlyDeleted: true } : row)
+                            }));
                             setOpen(false);
                             Swal.fire({
                                 title: "Deleted!",
@@ -67,24 +75,29 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
         } else {
             setOpen(true);
             let status = "rejected";
-            axios.put(API_URL + 'user/update_user_status',
-                { status: status, id: id }).then((response) => {
-                    if (response.data) {
-                        set_user_data(user_data.map(row => {
-                            if (row.ID === id) {
-                                row.AccountStatus = status;
-                            }
-                            return row;
-                        }));
-                        setOpen(false);
-                    } else {
-                        console.log(response.data);
-                        setOpen(false);
+            axios.patch(API_URL + 'user/update_user_status', {
+                status: status, id: id,
+            },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
                     }
-                }).catch((err) => {
-                    console.log(err);
+                }
+            ).then((response) => {
+                if (response.data) {
+                    set_user_data(prevData => ({
+                        ...prevData,
+                        data: prevData?.data?.map(row => row._id === id ? { ...row, accountStatus: status } : row)
+                    }));
                     setOpen(false);
-                });
+                } else {
+                    console.log(response.data);
+                    setOpen(false);
+                }
+            }).catch((err) => {
+                console.log(err);
+                setOpen(false);
+            });
         }
     };
 
@@ -94,32 +107,40 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
         if (stat === "active") {
             status = "inactive";
         }
-        axios.put(API_URL + 'user/update_user_status',
-            { status: status, id: id }).then((response) => {
-                if (response.data) {
-                    set_user_data(user_data.map(row => {
-                        if (row.ID === id) {
-                            row.AccountStatus = status;
-                        }
-                        return row;
-                    }));
-                    setOpen(false);
+        axios.patch(API_URL + 'user/update_user_status', {
+            status: status, id: id,
+        },
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
                 }
-                else {
-                    console.log(response.data);
-                    setOpen(false);
-                }
-            }).catch((err) => {
-                console.log(err);
+            }
+        ).then((response) => {
+            if (response.data) {
+                set_user_data(prevData => ({
+                    ...prevData,
+                    data: prevData?.data?.map(row => row._id === id ? { ...row, accountStatus: status } : row)
+                }));
                 setOpen(false);
-            });
+            }
+            else {
+                console.log(response.data);
+                setOpen(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+            setOpen(false);
+        });
     };
 
-    console.log('qwdioqwjdiuqwdjiuwqefweiufhwieuhuiwef', user_data)
-    const filteredData = user_data.data.filter(row =>
+    console.log('user_data:', user_data);
+    console.log('user_data?.data:', user_data?.data);
+
+    const filteredData = user_data?.data?.filter(row =>
         (row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             row.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (filter === 'all' ? !row.permanentlyDeleted : (filter === 'inactive' && row.accountStatus === 'inactive'))
+        (!row.permanentlyDeleted) &&
+        (filter === 'all' || (filter === 'inactive' && row.accountStatus === 'inactive'))
     );
 
     function toTitleCase(str) {
@@ -131,7 +152,7 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
 
     const indexOfLastEntry = currentPage * entriesPerPage;
     const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-    const currentEntries = filteredData.slice(indexOfFirstEntry, indexOfLastEntry);
+    const currentEntries = filteredData?.slice(indexOfFirstEntry, indexOfLastEntry);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -154,14 +175,18 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
         if (confirmInput === 'confirm') {
             handleCloseModal();
             // Logic for clearing data goes here
-            if ((user_data.data.filter(row => row.AccountStatus === 'deleted')).length === 0) {
+            if ((user_data.data.filter(row => row.accountStatus === 'deleted')).length === 0) {
                 alert("No Delete Account Present!")
                 return
             }
             setOpen(true);
-            axios.delete(API_URL + 'delete_users').then((response) => {
+            axios.delete(API_URL + 'user/delete_user', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).then((response) => {
                 if (response.data) {
-                    set_user_data(user_data.data.filter(row => row.AccountStatus !== 'deleted'));
+                    set_user_data(user_data.data.filter(row => row.accountStatus !== 'deleted'));
                     setOpen(false);
                     Swal.fire({
                         title: "Deleted!",
@@ -235,14 +260,14 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentEntries.map((row, index) => (
+                            {currentEntries?.map((row, index) => (
                                 <tr key={row._id}>
                                     {row.permanentlyDeleted ? (
                                         <>
                                             <td>{row.name}</td>
                                             <td>{row.email}</td>
                                             <td>{row.role}</td>
-                                            <td style={{ color: row.AccountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.accountStatus)}</td>
+                                            <td style={{ color: row.accountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.accountStatus)}</td>
                                             <td style={{ textAlign: 'center' }}>Deleted User</td>
                                         </>
                                     ) : (
@@ -250,13 +275,13 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
                                             <td>{row.name}</td>
                                             <td>{row.email}</td>
                                             <td>{row.role}</td>
-                                            <td style={{ color: row.AccountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.accountStatus)}</td>
+                                            <td style={{ color: row.accountStatus === 'active' ? 'green' : 'red' }}>{toTitleCase(row.accountStatus)}</td>
                                             <td>
                                                 <div className='table-action-buttons'>
-                                                    <button className='table-action-button-accept' onClick={() => { handleActiveInactive(row.ID, row.AccountStatus) }}>
-                                                        {row.AccountStatus === 'inactive' ? 'Activate' : row.AccountStatus === 'pending' ? 'Activate' : row.AccountStatus === 'rejected' ? 'Activate' : row.AccountStatus === 'deleted' ? 'Reinstate' : 'DeActivate'}</button>
-                                                    <button className='table-action-button-cancel' onClick={() => { handleDelete(row.ID, row.AccountStatus) }}>
-                                                        {row.AccountStatus === 'pending' ? 'Reject' : 'Delete'}</button>
+                                                    <button className='table-action-button-accept' onClick={() => { handleActiveInactive(row._id, row.accountStatus) }}>
+                                                        {row.accountStatus === 'inactive' ? 'Activate' : row.accountStatus === 'pending' ? 'Activate' : row.accountStatus === 'rejected' ? 'Activate' : row.accountStatus === 'deleted' ? 'Reinstate' : 'DeActivate'}</button>
+                                                    <button className='table-action-button-cancel' onClick={() => { handleDelete(row._id, row.accountStatus) }}>
+                                                        {row.accountStatus === 'pending' ? 'Reject' : 'Delete'}</button>
                                                 </div>
                                             </td>
                                         </>
@@ -267,7 +292,7 @@ const AdminOperationsBody = ({ user_data, set_user_data }) => {
                     </table>
                 </div>
                 {/* Pagination */}
-                {filteredData.length > entriesPerPage && (
+                {filteredData?.length > entriesPerPage && (
                     <div className="pagination">
                         <button className='pagination-button-prev' onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                             <FaAngleLeft />

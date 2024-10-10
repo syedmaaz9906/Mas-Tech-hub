@@ -1,18 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './tabTruckOperations.css';
 import Tab1TruckOperations from '../tab1_truck_operations/Tab1TruckOperations';
 import Tab2TruckOperations from '../tab2_truck_operations/Tab2TruckOperations';
 import Tab3TruckOperations from '../tab3_truck_operations/Tab3TruckOperations';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
+import { io } from 'socket.io-client';
 
 const TabsTruckOperations = () => {
 
     const [activeTab, setActiveTab] = useState('Operations');
     const [open, setOpen] = useState(false);
-
+    const [allDrivers, setAllDrivers] = useState([]);
+    const [operations, setOperations] = useState([]);
+    const [resolvedOperations, setResolvedOperations] = useState([]);
+    const token = localStorage.getItem('token')
     const handleTabClick = (tab) => {
         setActiveTab(tab);
+    };
+
+    const fetchAllDrivers = async () => {
+        try {
+            const response = await axios.get(process.env.API_URL + 'driver/all', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setAllDrivers(response.data.data);
+        } catch (error) {
+            // console.error('Error fetching drivers:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllDrivers();
+    }, [])
+
+    const fetchOperations = async () => {
+        try {
+            const response = await axios.get(process.env.API_URL + 'operation/all', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setOperations(response.data.data);
+        } catch (error) {
+            // console.error('Error fetching drivers:', error);
+        }
+    };
+
+    const fetchResolvedOperations = async () => {
+        try {
+            const response = await axios.get(process.env.API_URL + 'operation/all?completed=true', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setResolvedOperations(response.data.data);
+        } catch (error) {
+            // console.error('Error fetching drivers:', error);
+        }
     };
 
     return (
@@ -45,9 +96,9 @@ const TabsTruckOperations = () => {
                     </button>
                 </div>
                 <div className="tab-content">
-                    {activeTab === 'Operations' && <div><Tab1TruckOperations set_backdrop={setOpen} /></div>}
-                    {activeTab === 'Driver Profile' && <div><Tab2TruckOperations set_backdrop={setOpen} /></div>}
-                    {activeTab === 'Driver Options' && <div><Tab3TruckOperations set_backdrop={setOpen} /></div>}
+                    {activeTab === 'Operations' && <div><Tab1TruckOperations set_backdrop={setOpen} allDrivers={allDrivers} fetchAllDrivers={fetchAllDrivers} operations={operations} fetchOperations={fetchOperations} fetchResolvedOperations={fetchResolvedOperations} /></div>}
+                    {activeTab === 'Driver Profile' && <div><Tab2TruckOperations set_backdrop={setOpen} allDrivers={allDrivers} fetchAllDrivers={fetchAllDrivers} /></div>}
+                    {activeTab === 'Driver Options' && <div><Tab3TruckOperations set_backdrop={setOpen} resolvedOperations={resolvedOperations} fetchResolvedOperations={fetchResolvedOperations} /></div>}
                 </div>
             </div>
         </>

@@ -3,43 +3,90 @@ import './tab2TruckOperations.css';
 import { MdDeleteForever } from 'react-icons/md';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { io } from 'socket.io-client';
 
-let API_URL = 'http://localhost:5000/api/';
+const socket = io(process.env.SOCKET_URL);
 
-const Tab2TruckOperations = ({ set_backdrop }) => {
+let API_URL = process.env.API_URL;
+
+const Tab2TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers }) => {
+
     const [modalOpen, setModalOpen] = useState(false);
     const [driverName, setDriverName] = useState('');
-    const [drivers, setDrivers] = useState([]);
-
+    const [currentDrivers, setCurrentDrivers] = useState();
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 8;
+    const totalPages = allDrivers && allDrivers.length > 0 ? Math.ceil(allDrivers.length / rowsPerPage) : 1;
     const userDetails = localStorage.getItem('user_details')
     const token = localStorage.getItem('token')
 
     useEffect(() => {
-        set_backdrop(true);
-        axios.get(API_URL + 'driver/all', {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        }).then((response) => {
-            set_backdrop(false);
-            setDrivers(response.data.data);
-        })
-            .catch(err => { set_backdrop(false); console.warn(err); });
+
+        // setCurrentDrivers(
+        //     allDrivers ? allDrivers?.slice(
+        //         (currentPage - 1) * rowsPerPage,
+        //         currentPage * rowsPerPage
+        //     ) : []
+        // )
+
+        // Listen for driverAdded event
+        socket.on('driverAdded', (newDriver) => {
+            console.log('Driver added:', newDriver);
+            fetchAllDrivers();
+        });
+
+        // Listen for driverUpdated event
+        socket.on('driverUpdated', (updatedDriver) => {
+            console.log('Driver updated:', updatedDriver);
+            fetchAllDrivers();
+        });
+
+        // Listen for driverUpdated event
+        socket.on('driverReinstated', (updatedDriver) => {
+            console.log('Driver Reinstated:', updatedDriver);
+            fetchAllDrivers();
+        });
+
+        // Listen for driverDeleted event
+        socket.on('driverDeleted', (deletedDriver) => {
+            console.log('Driver Deleted:', deletedDriver);
+            fetchAllDrivers();
+        });
+
+        // Listen for addOperataion event
+        socket.on('operationAdded', (operation) => {
+            console.log('Operation Added:', operation);
+            fetchAllDrivers();
+        });
+
+        // Listen for reassignedOperataion NA event
+        socket.on('driverReassignedNA', (operationId, driver, noDriverTimeCount, message) => {
+            console.log('ReAssigned NA Operation:', operationId, driver, noDriverTimeCount, message);
+            fetchAllDrivers();
+        });
+
+        // Listen for reassignedOperataion event
+        socket.on('driverReassigned', (operationId, newDriver, assignedAt, totalTimeCount, noDriverTime) => {
+            console.log('ReAssigned Operation:', operationId, newDriver, assignedAt, totalTimeCount, noDriverTime);
+            fetchAllDrivers();
+        });
+
+        // Cleanup on unmount
+        return () => {
+            socket.off('driverAdded');
+            socket.off('driverUpdated');
+            socket.off('driverReinstated');
+            socket.off('driverDeleted');
+        };
     }, []);
 
     const handleAddDriver = () => {
-
         if (driverName.trim()) {
-            set_backdrop(true);
-
+            // set_backdrop(true);
             const payload = {
                 driverName: driverName,
-                accountID: JSON.parse(userDetails).id
             };
-
             console.log('Payload:', payload);
-
             axios.post(API_URL + 'driver/add', payload, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -47,16 +94,11 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
             }).then((response) => {
                 if (response.status === 201) {
                     const resp = response.data;
-                    console.log('qwdqwdqwdqwdqwdqwd', resp)
-                    set_backdrop(false);
-                    const updatedDrivers = [...drivers, resp];
-                    setDrivers(updatedDrivers);
                     setDriverName('');
                     setModalOpen(false);
                 }
             }).catch((error) => {
                 console.error("Error", error.response ? error.response.data : error.message);
-                set_backdrop(false);
                 setDriverName('');
                 setModalOpen(false);
                 alert("Error occurred while adding the driver");
@@ -65,10 +107,10 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
     };
 
     const handleDeleteDriver = (driver) => {
-        if (driver.DriverStatus === "placed") {
-            return alert("Driver is placed already, can't delete");
+        if (driver.status === "busy") {
+            return alert("Driver is busy already, can't delete");
         }
-        if (driver.DriverStatus === "deleted") {
+        if (driver.status === "deleted") {
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -80,14 +122,12 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     set_backdrop(true);
-                    axios.delete(API_URL + 'delete_driver', {
-                        params: {
-                            id: driver._id,
-                            status: driver.status
+                    axios.delete(API_URL + `driver/delete/${driver._id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
                         }
                     }).then((response) => {
-                        if (response.data.data) {
-                            setDrivers(drivers.filter(row => row._id !== driver._id));
+                        if (response.data) {
                             set_backdrop(false);
                             Swal.fire({
                                 title: "Deleted!",
@@ -95,7 +135,7 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                                 icon: "success"
                             });
                         } else {
-                            console.log(response.data.data);
+                            console.log(response.data);
                             set_backdrop(false);
                         }
                     }).catch((err) => {
@@ -106,22 +146,16 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
             });
         } else {
             set_backdrop(true);
-            axios.delete(API_URL + 'driver/delete', {
-                params: {
-                    id: driver._id,
-                    status: driver.status
-                }
+            axios.patch(API_URL + `driver/status/${driver._id}`, { status: 'deleted' }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
             }).then((response) => {
-                if (response.data.data) {
-                    setDrivers(drivers.map(row => {
-                        if (row._id === driver._id) {
-                            row.status = "deleted";
-                        }
-                        return row;
-                    }));
+                console.log('reposen', response)
+                if (response.data) {
                     set_backdrop(false);
                 } else {
-                    console.log(response.data.data);
+                    console.log(response.data);
                     set_backdrop(false);
                 }
             }).catch((err) => {
@@ -133,19 +167,15 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
 
     const handleReinstateDriver = (driver) => {
         set_backdrop(true);
-        axios.put(API_URL + 'driver/reinstate', {
-            id: driver._id
+        axios.patch(API_URL + `driver/reinstate/${driver._id}`, {}, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         }).then((response) => {
-            if (response.data.data) {
-                setDrivers(drivers.map(row => {
-                    if (row._id === driver._id) {
-                        row.status = "available";
-                    }
-                    return row;
-                }));
+            if (response.data) {
                 set_backdrop(false);
             } else {
-                console.log(response.data.data);
+                console.log(response.data);
                 set_backdrop(false);
             }
         }).catch((err) => {
@@ -181,7 +211,7 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                 </div>
             )}
 
-            {drivers.length > 0 && (
+            {allDrivers?.length > 0 && (
                 <div className='table-container'>
                     <table className='drivers-table'>
                         <thead>
@@ -196,7 +226,7 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {drivers.map((driver, index) => (
+                            {allDrivers.map((driver, index) => (
                                 <tr key={index}>
                                     <td>{driver.name}</td>
                                     <td>{driver.requestNumber || 'N/A'}</td>
@@ -215,6 +245,22 @@ const Tab2TruckOperations = ({ set_backdrop }) => {
                             ))}
                         </tbody>
                     </table>
+                    <div className='paginationButtonMain'>
+                        <button
+                            className='paginationButtonNext'
+                            onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+                            disabled={currentPage === 1 || allDrivers?.length <= rowsPerPage}
+                        >
+                            Previous
+                        </button>
+                        <button
+                            className='paginationButtonPrev'
+                            onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+                            disabled={currentPage === totalPages || allDrivers?.length <= rowsPerPage}
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

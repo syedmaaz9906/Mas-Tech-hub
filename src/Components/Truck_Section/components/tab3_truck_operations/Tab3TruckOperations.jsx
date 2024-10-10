@@ -1,148 +1,134 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import './tab3TruckOperations.css';
-
-import { MdDeleteForever } from "react-icons/md";
-import { SiDavinciresolve } from "react-icons/si";
+import { MdDeleteForever, MdRestore } from "react-icons/md";
 import axios from 'axios';
+import { io } from 'socket.io-client';
 import Swal from 'sweetalert2';
 
-let API_URL = 'https://backend.srv533347.hstgr.cloud/'
-const Tab3TruckOperations = ({ user_details, set_backdrop }) => {
+const socket = io(process.env.SOCKET_URL);
+let API_URL = process.env.API_URL;
 
-    // const [formData, setFormData] = useState({
-    //     truckLocation: '',
-    //     boothLocation: '',
-    //     request: '',
-    //     notes: '',
-    //     assignedDriver: '',
-    //     priority: '',
-    // });
+const Tab3TruckOperations = ({ set_backdrop, resolvedOperations, fetchResolvedOperations }) => {
 
-    const [operations, setOperations] = useState([]);
-
-
-    const elapsedTimeCalculator = (select_time) => {
-        const currentTime = new Date();
-        const selectTimeDate = new Date(select_time);
-        const diffInMillis = Math.abs(currentTime - selectTimeDate);
-
-        return timeFormatter(diffInMillis)
-    };
-
-    const elapsedTimeFind = (select_time) => {
-        const currentTime = new Date();
-        const selectTimeDate = new Date(select_time);
-        const diffInMillis = Math.abs(currentTime - selectTimeDate);
-        return diffInMillis
-    }
-
-    function timeFormatter(diffInMillis) {
-        const hours = Math.floor(diffInMillis / 3600000);
-        const minutes = Math.floor((diffInMillis % 3600000) / 60000);
-        const seconds = Math.floor((diffInMillis % 60000) / 1000);
-        const formattedHours = String(hours).padStart(2, '0');
-        const formattedMinutes = String(minutes).padStart(2, '0');
-        const formattedSeconds = String(seconds).padStart(2, '0');
-        return [formattedHours, formattedMinutes, formattedSeconds]
-    }
-
-    function counterTimer() {
-
-        setOperations(prevOperations => prevOperations.map(operation => ({
-            ...operation,
-            RequestTimeElapsedCounter: operation.RequestTimeElapsedCounter + 1000,
-            DriverTimeElapsedCounter: operation.DriverTimeElapsedCounter + 1000,
-            RequestTimeElapsed: timeFormatter(operation.RequestTimeElapsedCounter + 1000),
-            DriverTimeElapsed: timeFormatter(operation.DriverTimeElapsedCounter + 1000),
-        })));
-    }
-
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
-        set_backdrop(true);
-        axios.get(API_URL + 'get_resolved_truck_oeprations', {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => {
-            // console.log(response.data);
-            set_backdrop(false);
-            const resp = response.data;
-            setOperations(resp?.truck_operations?.map(dat => {
-                return {
-                    ...dat,
-                    RequestTimeElapsed: elapsedTimeCalculator(dat.TimeStarted),
-                    DriverTimeElapsed: elapsedTimeCalculator(dat.DriverTimeStarted),
-                    RequestTimeElapsedCounter: elapsedTimeFind(dat.TimeStarted),
-                    DriverTimeElapsedCounter: elapsedTimeFind(dat.DriverTimeStarted),
+        fetchResolvedOperations();
 
-                };
-            }));
-            // setDrivers(resp.drivers);
-            setInterval(counterTimer, 1000);
-        })
-            .catch(err => { set_backdrop(false); console.warn(err) });
+        // Listen for operationDeleted event
+        socket.on('operationDeleted', (deletedOperation) => {
+            console.log('Deleted Operation:', deletedOperation);
+            fetchResolvedOperations();
+        });
+
+        // Listen for operationReinstated event
+        socket.on('operationReinstated', (updatedOperation) => {
+            console.log('Reinstated Operation:', updatedOperation);
+            fetchResolvedOperations();
+        });
+
+        // Cleanup on unmount
+        return () => {
+            socket.off('operationDeleted');
+            socket.off('operationReinstated');
+        };
     }, []);
 
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData({
-    //         ...formData,
-    //         [name]: value,
-    //     });
-    // };
+    const getTimeElapsed = (createdAt) => {
+        const createdTime = new Date(createdAt);
+        const currentTime = new Date();
+        const timeDiff = Math.abs(currentTime - createdTime);
 
-    // const addOperation = () => {
-    //     const newOperation = {
-    //         requestNumber: requestNumber,
-    //         truckLocation: formData.truckLocation,
-    //         boothLocation: formData.boothLocation,
-    //         request: formData.request,
-    //         notes: formData.notes,
-    //         assignedDriver: 'N/A',
-    //         requestTimeStamp: new Date().toLocaleString(),
-    //         requestTimeElapsed: 0,
-    //         priority: formData.priority,
-    //         resolved: false,
-    //     };
+        // Calculate days, hours, minutes, seconds
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
 
-    //     const updatedOperations = [...operations, newOperation];
-    //     setOperations(updatedOperations);
-    //     localStorage.setItem('operations', JSON.stringify(updatedOperations));
-
-    //     setRequestNumber(requestNumber + 1);
-    //     localStorage.setItem('requestNumber', requestNumber + 1);
-
-    //     setFormData({
-    //         truckLocation: '',
-    //         boothLocation: '',
-    //         request: '',
-    //         notes: '',
-    //         assignedDriver: '',
-    //         priority: '',
-    //     });
-    // };
-
-
-    const deleteOperation = (requestNumber) => {
-        const updatedOperations = operations.filter((operation) => operation.requestNumber !== requestNumber);
-        setOperations(updatedOperations);
-        localStorage.setItem('operations', JSON.stringify(updatedOperations));
+        // Format and return the elapsed time
+        return `${days}d ${hours}h ${minutes}m ${seconds}s`;
     };
 
-    const resolveOperation = (requestNumber) => {
-        const updatedOperations = operations.map((operation) =>
-            operation.requestNumber === requestNumber
-                ? { ...operation, resolved: !operation.resolved }
-                : operation
-        );
-        setOperations(updatedOperations);
-        localStorage.setItem('operations', JSON.stringify(updatedOperations));
+    const reinstateOperation = (operation) => {
+        console.log(operation)
+        axios.patch(API_URL + `operation/reinstate/${operation._id}`, { status: 'deleted' }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        }).then((response) => {
+            console.log('reposen', response)
+            if (response.data) {
+                set_backdrop(false);
+            } else {
+                console.log(response.data);
+                set_backdrop(false);
+            }
+        }).catch((err) => {
+            console.log(err);
+            set_backdrop(false);
+        });
     };
 
+    const deleteOperation = (operation) => {
+        console.log(operation)
+        if (operation.status === 'deleted') {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    set_backdrop(true);
+                    axios.delete(API_URL + `operation/delete/${operation._id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                    }).then((response) => {
+                        if (response.data) {
+                            set_backdrop(false);
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Operation has been deleted.",
+                                icon: "success"
+                            });
+                        } else {
+                            // console.log(response.data);
+                            set_backdrop(false);
+                        }
+                    }).catch((err) => {
+                        console.log(err);
+                        set_backdrop(false);
+                    });
+                }
+            });
+
+        }
+        else {
+            set_backdrop(true);
+            axios.delete(API_URL + `operation/delete/${operation._id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+            }).then((response) => {
+                if (response.data) {
+                    set_backdrop(false);
+                } else {
+                    set_backdrop(false);
+                }
+            }).catch((err) => {
+                console.log(err);
+                set_backdrop(false);
+            });
+        }
+
+    };
     const exportToCSV = () => {
-        if (operations.length === 0) {
-            alert("No operations to export.");
+        if (resolvedOperations.length === 0) {
+            alert("No resolvedOperations to export.");
             return;
         }
 
@@ -159,7 +145,7 @@ const Tab3TruckOperations = ({ user_details, set_backdrop }) => {
             "Resolved"
         ];
 
-        const rows = operations.map(operation => [
+        const rows = resolvedOperations.map(operation => [
             operation.requestNumber,
             operation.truckLocation,
             operation.boothLocation,
@@ -181,74 +167,15 @@ const Tab3TruckOperations = ({ user_details, set_backdrop }) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "operations.csv";
+        a.download = "resolvedOperations.csv";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
     };
 
-
     return (
         <div className="tabMainContainer">
-            {/* <div className="form-container">
-                <input
-                    type="text"
-                    name="truckLocation"
-                    value={formData.truckLocation}
-                    onChange={handleChange}
-                    placeholder="Truck Location"
-                    className="input"
-                />
-                <input
-                    type="text"
-                    name="boothLocation"
-                    value={formData.boothLocation}
-                    onChange={handleChange}
-                    placeholder="Booth Location"
-                    className="input"
-                />
-                <input
-                    type="text"
-                    name="request"
-                    value={formData.request}
-                    onChange={handleChange}
-                    placeholder="Request"
-                    className="input"
-                />
-                <input
-                    type="text"
-                    name="notes"
-                    value={formData.notes}
-                    onChange={handleChange}
-                    placeholder="Notes"
-                    className="input"
-                />
-                <select
-                    name="assignedDriver"
-                    value={formData.assignedDriver}
-                    onChange={handleChange}
-                    className="input"
-                    disabled
-                >
-                    <option value="" disabled>Assigned Driver</option>
-                    <option value="option1" disabled>N/A</option>
-                </select>
-                <select
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleChange}
-                    className="input"
-                >
-                    <option value="" disabled>Priority</option>
-                    <option value="Low">Low</option>
-                    <option value="High">High</option>
-                </select>
-            </div> */}
-
             <div className='btn-truck-operations-main'>
-                {/* <button className='btn-truck-operations' onClick={addOperation}>
-                    Add Operation
-                </button> */}
                 <button className='btn-truck-operations' onClick={exportToCSV}>
                     Export to CSV
                 </button>
@@ -266,32 +193,34 @@ const Tab3TruckOperations = ({ user_details, set_backdrop }) => {
                             <th>Assigned Driver</th>
                             <th>Request TimeStamp</th>
                             <th>Request Time Elapsed (s)</th>
-                            {/* <th>Driver Assigned Time Elapsed (s)</th> */}
-                            {/* <th>ReAssigned Time Elapsed (s)</th> */}
                             <th>Priority</th>
                             <th>Delete</th>
-                            {/* <th>Resolve</th> */}
                         </tr>
                     </thead>
                     <tbody>
-                        {operations.map((operation) => (
-                            // <tr key={operation.ID} className={operation.resolved ? 'resolved' : 'resolved'}>
-                            <tr key={operation.ID} className={operation.OperationStatus == 'resolved' ? 'resolvedTruck3' : 'resolvedTruck3'}>
-                                <td>{operation.RequestNumber}</td>
-                                <td>{operation.TruckLocation}</td>
-                                <td>{operation.BoothLocation}</td>
-                                <td>{operation.Request}</td>
-                                <td>{operation.Notes}</td>
-                                <td>{operation.DriverName}</td>
-                                <td>{operation.TimeStarted}</td>
-                                <td>{`${operation.RequestTimeElapsed[0]}:${operation.RequestTimeElapsed[1]}:${operation.RequestTimeElapsed[2]}`}</td>
-                                {/* <td>{`${operation.DriverTimeElapsed[0]}:${operation.DriverTimeElapsed[1]}:${operation.DriverTimeElapsed[2]}`}</td> */}
-                                {/* <td>0:00</td> */}
-                                <td>{operation.Priority}</td>
-                                <td><MdDeleteForever className='deleteIconTable' onClick={() => deleteOperation(operation)} /></td>
-                                {/* <td><SiDavinciresolve className='resolveIconTable' onClick={() => resolveOperation(operation)} /></td> */}
+                        {resolvedOperations && resolvedOperations.length > 0 ? resolvedOperations.map((operation) => (
+                            <tr key={operation?._id} className={operation.OperationStatus == 'resolved' ? 'resolvedTruck3' : 'resolvedTruck3'}>
+                                <td>{operation?.requestNumber}</td>
+                                <td>{operation?.truckLocation}</td>
+                                <td>{operation?.boothLocation}</td>
+                                <td>{operation?.request}</td>
+                                <td>{operation?.notes}</td>
+                                <td>{operation?.assignedDriver ? operation?.driverHistory.filter((d) => operation?.assignedDriver._id === d.driverId)[0].driverName : "N/A"}</td>
+                                <td>{operation?.createdAt}</td>
+                                <td>{getTimeElapsed(operation.createdAt)}</td>
+                                <td>{operation.priority}</td>
+                                <td>
+                                    <MdDeleteForever className='deleteIconTable' onClick={() => deleteOperation(operation)} />
+                                    {operation?.status === 'deleted' &&
+                                        <MdRestore className='reinstateIconTable' onClick={() => reinstateOperation(operation)} />
+                                    }
+                                </td>
                             </tr>
-                        ))}
+                        )) : (
+                            <div className='noOperationMain'>
+                                <p className='noOperationText'>No resolved operations</p>
+                            </div>
+                        )}
                     </tbody>
                 </table>
             </div>
