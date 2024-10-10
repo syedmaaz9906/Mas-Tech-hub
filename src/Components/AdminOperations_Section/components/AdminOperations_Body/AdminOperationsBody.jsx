@@ -6,7 +6,7 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2';
 
-let API_URL = 'http://localhost:5000/api/';
+let API_URL = process.env.API_URL;
 
 const AdminOperationsBody = ({ user_data, set_user_data }) => {
     const [searchTerm, setSearchTerm] = useState('');

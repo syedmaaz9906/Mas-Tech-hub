@@ -6,7 +6,7 @@ import { ScreenMode } from '../../Pages/SigninPage'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
 
-let API_URL = 'http://localhost:5000/api/';
+let API_URL = process.env.API_URL;
 
 const SigninForm = ({ onSwitchMode, set_token }) => {
     const [accountEmail, setAccountEmail] = useState('')

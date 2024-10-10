@@ -22,7 +22,7 @@ const TabsTruckOperations = () => {
 
     const fetchAllDrivers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/driver/all', {
+            const response = await axios.get(process.env.API_URL + 'driver/all', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -40,7 +40,7 @@ const TabsTruckOperations = () => {
 
     const fetchOperations = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/operation/all', {
+            const response = await axios.get(process.env.API_URL + 'operation/all', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -54,7 +54,7 @@ const TabsTruckOperations = () => {
 
     const fetchResolvedOperations = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/operation/all?completed=true', {
+            const response = await axios.get(process.env.API_URL + 'operation/all?completed=true', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`

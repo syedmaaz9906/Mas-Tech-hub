@@ -5,7 +5,7 @@ import axios from 'axios';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
-let API_URL = 'http://localhost:5000/api/';
+let API_URL = process.env.API_URL;
 
 const AdminOperations = () => {
 

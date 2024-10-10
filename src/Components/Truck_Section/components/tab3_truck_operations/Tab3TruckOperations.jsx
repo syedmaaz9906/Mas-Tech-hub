@@ -5,8 +5,8 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import Swal from 'sweetalert2';
 
-const socket = io('http://localhost:5000');
-let API_URL = 'http://localhost:5000/api/';
+const socket = io(process.env.SOCKET_URL);
+let API_URL = process.env.API_URL;
 
 const Tab3TruckOperations = ({ set_backdrop, resolvedOperations, fetchResolvedOperations }) => {
 

@@ -9,9 +9,9 @@ import TimerCell from './componentsTruck1/componentsTruck1';
 import DriverAssignedTimer from './componentsTruck1/driverTimer';
 import NoDriverTimer from './componentsTruck1/reAssignedTimeCount';
 
-const socket = io('http://localhost:5000');
+const socket = io(process.env.SOCKET_URL);
 
-let API_URL = 'http://localhost:5000/api/';
+let API_URL = process.env.API_URL;
 
 const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers, operations, fetchOperations, fetchResolvedOperations }) => {
 
@@ -28,7 +28,7 @@ const Tab1TruckOperations = ({ set_backdrop, allDrivers, fetchAllDrivers, operat
 
     const fetchDrivers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/driver/all?status=available', {
+            const response = await axios.get(process.env.API_URL + 'driver/all?status=available', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
