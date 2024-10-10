@@ -133,7 +133,7 @@ const SignupForm = ({ onSwitchMode }) => {
                     </Typography>
 
                     <Typography color={colors.grey[600]}>
-                        necessitatibus assumenda repellat perferendis est reprehenderit maiores?
+                        Don't have an account? Please SignUp!
                     </Typography>
                 </Stack>
 

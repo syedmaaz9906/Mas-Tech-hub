@@ -126,7 +126,7 @@ const SigninForm = ({ onSwitchMode, set_token }) => {
                     </Typography>
 
                     <Typography color={colors.grey[600]}>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                        We're happy to see you again. Let's get started!
                     </Typography>
                 </Stack>
 
